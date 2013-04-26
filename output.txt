@@ -1,0 +1,7 @@
+% Game between Student's program and assignment program
+% INITIAL FORMAT:
+[FEN "8/8/8/8/4k3/8/0R7/0K7 w - - 0 1"]
+% STEPS:
+1. null
+% RESULT: FAILED
+% COMMENT: ILLEGAL MOVE
