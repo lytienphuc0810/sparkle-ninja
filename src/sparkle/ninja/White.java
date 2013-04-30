@@ -1,7 +1,8 @@
+// remember to change.
 package sparkle.ninja;
 
-import ass2_library.BaseOfWhite;
 import ass2_library.AI_assignment2;
+import ass2_library.BaseOfWhite;
 import java.io.IOException;
 
 /*
@@ -10,6 +11,10 @@ import java.io.IOException;
  */
 
 public class White extends BaseOfWhite {
+
+  public int white_king = 20000;  
+  public int white_rook = 500;
+  public int black_king = 20000;
 
   public int white_rook_table[][] = { {0,  0,  0,  0,  0,  0,  0,  0}, 
                                       {5, 10, 10, 10, 10, 10, 10,  5},
@@ -28,6 +33,152 @@ public class White extends BaseOfWhite {
                                       {-30, -10,  20,  30,  30,  20, -10, -30}, 
                                       {-30, -30,   0,   0,   0,   0, -30, -30}, 
                                       {-50, -30, -30, -30, -30, -30, -30, -50} };
+  public int init_white_king_x = -1;  
+  public int init_white_king_y = -1;
+  public int init_white_rook_x = -1;
+  public int init_white_rook_y = -1;
+  public int init_black_king_x = -1;
+  public int init_black_king_y = -1;
+
+  public int white_king_x = -1;  
+  public int white_king_y = -1;
+  public int white_rook_x = -1;
+  public int white_rook_y = -1;
+  public int black_king_x = -1;
+  public int black_king_y = -1;
+
+  public int depth = 3;
+  
+  public class state{
+    public int white_king_x = -1;  
+    public int white_king_y = -1;
+    public int white_rook_x = -1;
+    public int white_rook_y = -1;
+    public int black_king_x = -1;
+    public int black_king_y = -1;
+
+    public state(int x1, int y1, int x2, int y2, int x3, int y3){
+      white_king_x = x1;  
+      white_king_y = y1;
+      white_rook_x = x2;
+      white_rook_y = y2;
+      black_king_x = x3;
+      black_king_y = y3;
+    }
+
+    public boolean equal(int x1, int y1, int x2, int y2, int x3, int y3){
+      return (
+              white_king_x == x1 &&  
+              white_king_y == y1 &&
+              white_rook_x == x2 &&
+              white_rook_y == y2 &&
+              black_king_x == x3 &&
+              black_king_y == y3);
+    }
+  }
+
+  public class node{
+    public state st;
+    public node next;
+
+    public node(state st1){
+      st = st1;
+      next = null;
+    }
+  }
+
+  public class list{
+    public node head;
+    public node tail;
+
+    public list(){
+      head = null;
+      tail = null;
+    }
+
+    public void add(state st1){
+      if(head == null){
+        head = new node(st1);
+        tail = head;
+      }
+      else{
+        tail.next = new node(st1);
+        tail = tail.next;
+      }
+    }
+  }
+
+  public boolean valid_position(int x, int y){
+    return (x >= 0 && x < 8 && y >= 0 && y < 8);
+  }
+
+  public int evaluation(){
+    int result = 0;
+    result += white_rook + white_rook_table[7 - white_rook_y][white_rook_x];
+    result += white_king + white_king_table[7 - white_king_y][white_king_x];
+    result -= black_king + white_king_table[7 - black_king_y][black_king_x];
+    return result;
+  }
+//
+//  public int max(int current_depth){
+//  // rook 16 moves
+//  // king 8 moves
+//  // repeated states?
+//  // chi toi luot cua minh thi moi ko tinh chuyen ko di lai
+//    if(current_depth > depth){
+//      return evaluation();
+//    }
+//
+//    int temp, temp1, max, step_x, step_y;
+//    
+//    boolean rook = false;
+//    boolean unset = true;
+//
+//    temp = white_rook_x;
+//    for(int i = 0; i < 8; i++){
+//      if(i == temp){
+//        continue;
+//      }
+//      else{
+//        white_rook_x = i;
+//        temp1 = min(current_depth + 1);
+//        if(temp1 > max || unset){
+//          max = temp1;
+//          unset = false;
+//          step_x = white_rook_x;
+//          step_y = white_rook_y;
+//        }
+//      }
+//    }
+//    white_rook_x = temp;
+//
+//    temp = white_rook_y;
+//    for(int i = 0; i < 8; i++){
+//      if(i == temp){
+//        continue;
+//      }
+//      else{
+//        white_rook_y = i;
+//        temp1 = min(current_depth + 1);
+//        if(temp1 > max || unset){
+//          max = temp1;
+//          unset = false;
+//          step_x = white_rook_x;
+//          step_y = white_rook_y;
+//        }
+//      }
+//    }
+//    white_rook_y = temp;
+//
+//    while(){
+//      
+//    }
+//  }
+//  
+//  public int min(int current_depth){
+//    
+//  }
+  
   
   @Override
   public void initState(String[] state) {
