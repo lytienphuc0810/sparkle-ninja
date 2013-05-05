@@ -15,6 +15,9 @@ public class White extends BaseOfWhite {
   public int white_king = 20000;  
   public int white_rook = 500;
   public int black_king = 20000;
+  public boolean white = true;
+  public boolean black = false;
+  
 
   public int white_rook_table[][] = { {0,  0,  0,  0,  0,  0,  0,  0}, 
                                       {5, 10, 10, 10, 10, 10, 10,  5},
@@ -134,8 +137,10 @@ public class White extends BaseOfWhite {
     result += white_rook + white_rook_table[7 - white_rook_y][white_rook_x];
     result += white_king + white_king_table[7 - white_king_y][white_king_x];
     result -= black_king + white_king_table[7 - black_king_y][black_king_x];
+    result += in_check_rook() + in_check_king(white) + in_check_king(black);
     return result;
   }
+  
   public int in_check_rook(){
     if(black_king_x == white_rook_x){
       if(!(white_king_x == white_rook_x && ( (white_king_y > white_rook_y && white_king_y < black_king_y) || (white_king_y < white_rook_y && white_king_y > black_king_y) ))){
