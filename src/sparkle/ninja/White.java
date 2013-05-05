@@ -49,6 +49,8 @@ public class White extends BaseOfWhite {
 
   public int depth = 3;
   
+  public list pre_state = new list();
+
   public class state{
     public int white_king_x = -1;  
     public int white_king_y = -1;
@@ -106,6 +108,21 @@ public class White extends BaseOfWhite {
         tail = tail.next;
       }
     }
+
+    public void save_state(){
+      add(new state(white_king_x, white_king_y, white_rook_x, white_rook_y, black_king_x, black_king_y));
+    }
+
+    public boolean contains_current(){
+      node temp = head;
+      while(temp != null){
+        if(temp.st.equal(white_king_x, white_king_y, white_rook_x, white_rook_y, black_king_x, black_king_y)){
+          return true;
+        }
+        temp = temp.next;
+      }
+      return false;
+    }
   }
 
   public boolean valid_position(int x, int y){
@@ -119,65 +136,50 @@ public class White extends BaseOfWhite {
     result -= black_king + white_king_table[7 - black_king_y][black_king_x];
     return result;
   }
-//
-//  public int max(int current_depth){
-//  // rook 16 moves
-//  // king 8 moves
-//  // repeated states?
-//  // chi toi luot cua minh thi moi ko tinh chuyen ko di lai
-//    if(current_depth > depth){
-//      return evaluation();
-//    }
-//
-//    int temp, temp1, max, step_x, step_y;
-//    
-//    boolean rook = false;
-//    boolean unset = true;
-//
-//    temp = white_rook_x;
-//    for(int i = 0; i < 8; i++){
-//      if(i == temp){
-//        continue;
-//      }
-//      else{
-//        white_rook_x = i;
-//        temp1 = min(current_depth + 1);
-//        if(temp1 > max || unset){
-//          max = temp1;
-//          unset = false;
-//          step_x = white_rook_x;
-//          step_y = white_rook_y;
-//        }
-//      }
-//    }
-//    white_rook_x = temp;
-//
-//    temp = white_rook_y;
-//    for(int i = 0; i < 8; i++){
-//      if(i == temp){
-//        continue;
-//      }
-//      else{
-//        white_rook_y = i;
-//        temp1 = min(current_depth + 1);
-//        if(temp1 > max || unset){
-//          max = temp1;
-//          unset = false;
-//          step_x = white_rook_x;
-//          step_y = white_rook_y;
-//        }
-//      }
-//    }
-//    white_rook_y = temp;
-//
-//    while(){
-//      
-//    }
-//  }
-//  
-//  public int min(int current_depth){
-//    
-//  }
+
+  public int max(int current_depth){
+  // rook 16 moves
+  // king 8 moves
+  // repeated states?
+  // chi toi luot cua minh thi moi ko tinh chuyen ko di lai
+
+    if(current_depth > depth){
+      return evaluation();
+    }
+
+    int temp, temp1, step_x, step_y;
+    int max = -1;
+
+    boolean rook = false;
+    boolean unset = true;
+
+    temp = white_rook_x;
+    for(white_rook_x = 0; white_rook_x < 8; white_rook_x++){
+      if(pre_state.contains_current()){
+        continue;
+      }
+      else{
+        temp1 = min(current_depth + 1);
+        if(unset || temp1 > max){
+          max = temp1;
+          unset = false;
+          step_x = white_rook_x;
+          step_y = white_rook_y;
+          pre_state.save_state();
+        }
+      }
+    }
+    white_rook_x = temp;
+
+    temp = white_rook_y;
+    for(white_rook_y = 0; white_rook_y < 8; white_rook_y++){
+    }
+    white_rook_y = temp;
+
+    while(){
+      
+    }
+  }
   
   
   @Override
