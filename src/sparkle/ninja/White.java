@@ -18,6 +18,14 @@ public class White extends BaseOfWhite {
   public boolean white = true;
   public boolean black = false;
   
+  public int moveset[][] = {{0, 1},   
+                            {1, 0},   
+                            {1, 1},   
+                            {0, -1},                            
+                            {-1, 0},                               
+                            {0, -1},                            
+                            {-1, 1},                            
+                            {1, 1}};
 
   public int white_rook_table[][] = { {0,  0,  0,  0,  0,  0,  0,  0}, 
                                       {5, 10, 10, 10, 10, 10, 10,  5},
@@ -115,6 +123,21 @@ public class White extends BaseOfWhite {
     public void save_state(){
       add(new state(white_king_x, white_king_y, white_rook_x, white_rook_y, black_king_x, black_king_y));
     }
+    
+    public void remove_state(){
+      if(head == tail){
+        head = null;
+        tail = null;
+      }
+      else{
+        node temp = head;
+        while(temp.next != tail){
+          temp = temp.next;
+        }
+        tail = temp;
+        tail.next = null;
+      }
+    }
 
     public boolean contains_current(){
       node temp = head;
@@ -191,6 +214,20 @@ public class White extends BaseOfWhite {
       }
     }
   }
+  
+  public boolean invalid_move_rook(int x, int y){
+    if(!valid_position(x, y) || (x == white_king_x && y == white_king_y)){
+      return true;
+    }
+    return false;
+  }
+  
+  public boolean invalid_move_king(int x, int y){
+    if(!valid_position(x, y) || (x == white_rook_x && y == white_rook_y)){
+      return true;
+    }
+    return false;
+  }
 
   public int max(int current_depth){
   // rook 16 moves
@@ -209,33 +246,68 @@ public class White extends BaseOfWhite {
     boolean unset = true;
 
     temp = white_rook_x;
-    for(white_rook_x = 0; white_rook_x < 8; white_rook_x++){
-      if(pre_state.contains_current()){
+    for(int i = 0; i < 8; i++){
+      if(pre_state.contains_current() || invalid_move_rook(i, white_rook_y)){
         continue;
       }
       else{
+        white_rook_x = i;
+        pre_state.save_state();
         temp1 = min(current_depth + 1);
         if(unset || temp1 > max){
           max = temp1;
           unset = false;
           step_x = white_rook_x;
           step_y = white_rook_y;
-          pre_state.save_state();
         }
+        pre_state.remove_state();
       }
     }
     white_rook_x = temp;
 
     temp = white_rook_y;
-    for(white_rook_y = 0; white_rook_y < 8; white_rook_y++){
+    for(int i = 0; i < 8; i++){
+      if(pre_state.contains_current() || invalid_move_rook(white_rook_x, i)){
+        continue;
+      }
+      else{
+        white_rook_y = i;
+        temp1 = min(current_depth + 1);
+        pre_state.save_state();
+        if(unset || temp1 > max){
+          max = temp1;
+          unset = false;
+          step_x = white_rook_x;
+          step_y = white_rook_y;
+        }
+        pre_state.remove_state();
+      }
     }
     white_rook_y = temp;
 
-    while(){
-      
+    for(int i = 0; i < 8; i++){
+      if(pre_state.contains_current() || invalid_move_king(white_king_x + moveset[i][0], white_king_y + moveset[i][1])){
+        continue;
+      }
+      else{
+        white_king_x += moveset[i][0];        
+        white_king_y += moveset[i][1];
+        pre_state.save_state();
+        temp1 = min(current_depth + 1);
+        if(unset || temp1 > max){
+          max = temp1;
+          unset = false;
+          step_x = white_king_x;
+          step_y = white_king_y;
+        }
+        pre_state.remove_state();
+      }
     }
   }
   
+  public int min(int current_depth){
+    return 0;
+  }
   
   @Override
   public void initState(String[] state) {
@@ -253,14 +325,6 @@ public class White extends BaseOfWhite {
         AI_assignment2.run();
     } catch (IOException ex) {
         ex.printStackTrace();
-    }
-    
-    for(int i = 0; i < 8; i++){
-      for(int j = 0; j < 8; j++){
-        System.out.print(white.white_rook_table[i][j] + " ");
-        
-      }
-      System.out.println("");
     }
   }
 }
