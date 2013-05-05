@@ -136,6 +136,56 @@ public class White extends BaseOfWhite {
     result -= black_king + white_king_table[7 - black_king_y][black_king_x];
     return result;
   }
+  public int in_check_rook(){
+    if(black_king_x == white_rook_x){
+      if(!(white_king_x == white_rook_x && ( (white_king_y > white_rook_y && white_king_y < black_king_y) || (white_king_y < white_rook_y && white_king_y > black_king_y) ))){
+        for(int i = 0; i <= 7; i++){
+          if(i ==  black_king_y){
+            return 1000;
+          }
+        }
+      }
+    }
+    if(black_king_y == white_rook_y){
+      if(!(white_king_y == white_rook_y && ( (white_king_x > white_rook_x && white_king_x < black_king_x) || (white_king_x < white_rook_x && white_king_x > black_king_x) ))){
+        for(int i = 0; i <= 7; i++){
+          if(i ==  black_king_x){
+            return 1000;
+          }
+        }
+      }
+    }
+    return 0;
+  }
+  
+  public int in_check_king(boolean white){
+    if(white){
+      if(Math.abs(white_king_x - black_king_x) <= 1 && Math.abs(white_king_y - black_king_y) <= 1){
+        return 1000;
+      }
+      else{
+        return 0;
+      }
+    }
+    else{
+      if(Math.abs(white_king_x - black_king_x) <= 1 && Math.abs(white_king_y - black_king_y) <= 1){
+        if(Math.abs(white_rook_x - black_king_x) <= 1 && Math.abs(white_rook_y - black_king_y) <= 1){
+          return -1500;
+        }
+        else{
+          return -1000;
+        }
+      }
+      else{
+         if(Math.abs(white_rook_x - black_king_x) <= 1 && Math.abs(white_rook_y - black_king_y) <= 1){
+          return -500;
+        }
+        else{
+          return 0;
+        }
+      }
+    }
+  }
 
   public int max(int current_depth){
   // rook 16 moves
