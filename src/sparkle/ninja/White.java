@@ -285,6 +285,9 @@ public class White extends BaseOfWhite {
     }
     white_rook_y = temp;
 
+    int temp_x = white_king_x;    
+    int temp_y = white_king_y;
+
     for(int i = 0; i < 8; i++){
       if(pre_state.contains_current() || invalid_move_king(white_king_x + moveset[i][0], white_king_y + moveset[i][1])){
         continue;
@@ -302,11 +305,48 @@ public class White extends BaseOfWhite {
         }
         pre_state.remove_state();
       }
+      white_king_x = temp_x;
+      white_king_y = temp_y;
     }
+    
+    return max;
   }
   
   public int min(int current_depth){
-    return 0;
+    if(current_depth > depth){
+      return evaluation();
+    }
+
+    int temp1, step_x, step_y;
+    int min = -1;
+
+    boolean unset = true;
+
+    int temp_x = black_king_x;   
+    int temp_y = black_king_y;
+
+    for(int i = 0; i < 8; i++){
+      if(pre_state.contains_current() || invalid_move_king(white_king_x + moveset[i][0], white_king_y + moveset[i][1])){
+        continue;
+      }
+      else{
+        black_king_x += moveset[i][0];        
+        black_king_y += moveset[i][1];
+        pre_state.save_state();
+        temp1 = min(current_depth + 1);
+        if(unset || temp1 < min){
+          min = temp1;
+          unset = false;
+          step_x = black_king_x;
+          step_y = black_king_y;
+        }
+        pre_state.remove_state();
+      }
+      black_king_x = temp_x;
+      black_king_y = temp_y;
+    }
+    
+    return min;
   }
   
   @Override
