@@ -150,6 +150,52 @@ public class White extends BaseOfWhite {
       return false;
     }
   }
+  
+  public char get_char(int n){
+    switch(n){
+      case 0:
+        return 'a';
+      case 1:
+        return 'b';
+      case 2:
+        return 'c';
+      case 3:
+        return 'd';
+      case 4:
+        return 'e';
+      case 5:
+        return 'f';
+      case 6:
+        return 'g';
+      case 7:
+        return 'h';
+      default:
+        return 'p';
+    }
+  }
+  
+  public int get_int(char chr){
+    switch(chr){
+      case 'a':
+        return 0;
+      case 'b':
+        return 1;
+      case 'c':
+        return 2;
+      case 'd':
+        return 3;
+      case 'e':
+        return 4;
+      case 'f':
+        return 5;
+      case 'g':
+        return 6;
+      case 'h':
+        return 7;
+      default:
+        return -1;
+    }
+  }
 
   public boolean valid_position(int x, int y){
     return (x >= 0 && x < 8 && y >= 0 && y < 8);
@@ -351,11 +397,22 @@ public class White extends BaseOfWhite {
   
   @Override
   public void initState(String[] state) {
+    white_king_x = get_int(state[0].charAt(1));    
+    white_king_y = Integer.parseInt(state[0].substring(2, 2)) - 1;
+    
+    white_rook_x = get_int(state[1].charAt(1));    
+    white_rook_y = Integer.parseInt(state[1].substring(2, 2)) - 1;
+    
+    black_king_x = get_int(state[2].charAt(1));    
+    black_king_y = Integer.parseInt(state[2].substring(2, 2)) - 1;
   }
 
   @Override
   public String whiteMove(String blackMove) {
-    return null;
+    black_king_x = get_int(blackMove.charAt(1));    
+    black_king_y = Integer.parseInt(blackMove.substring(2, 2)) - 1;
+
+    return Somemove();
   }
 
   public static void main(String[] args) {
