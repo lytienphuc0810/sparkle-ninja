@@ -57,18 +57,12 @@ public class White extends BaseOfWhite {
   public list pre_state = new list();
 
   public void print_state(){
-    System.out.println(white_king_x + "-" + white_king_y + " " + white_rook_x + "-" + white_rook_y + " " + black_king_x + "-" + black_king_y + " ");
+    //System.out.println(white_king_x + "-" + white_king_y + " " + white_rook_x + "-" + white_rook_y + " " + black_king_x + "-" + black_king_y + " ");
   }
-  
-//  private boolean check(boolean white) {
-//    if(white){
-//      return (in_check_rook() + in_check_king(true) > 0);
-//    }
-//    else{
-//      return (in_check_king(false) < 0);
-//    }
-//  }
 
+  private boolean gameover_white() {
+    return(in_check_king(false) < 0);
+  }
 
   public class state{
     public int state_white_king_x = -1;  
@@ -281,6 +275,14 @@ public class White extends BaseOfWhite {
     return true;
   }
 
+  private boolean checkmate() {
+    if(in_check_rook() + in_check_king(true) > 0){
+      System.out.println("CHECK!!!");
+      return true;
+    }
+    return false;
+  }
+  
   public int evaluation(){
     print_state();
     int result = 0;
@@ -349,7 +351,7 @@ public class White extends BaseOfWhite {
   }
   
   public boolean invalid_move_rook(int x, int y){
-    if(!valid_position(x, y) || (x == white_king_x && y == white_king_y) || (x == black_king_x && y == black_king_y)){
+    if((x == white_king_x && y == white_king_y) || (x == black_king_x && y == black_king_y)){
       System.out.println("rook thot");
       return true;
     }
@@ -357,7 +359,7 @@ public class White extends BaseOfWhite {
   }
   
   public boolean invalid_move_king(int x, int y){
-    if(!valid_position(x, y) || (x == white_rook_x && y == white_rook_y) || (white_king_x == black_king_x && white_king_y == black_king_y)){
+    if((x == white_rook_x && y == white_rook_y) || (white_king_x == black_king_x && white_king_y == black_king_y)){
       System.out.println("king thot");
       return true;
     }
@@ -366,7 +368,7 @@ public class White extends BaseOfWhite {
 
   public int max(int current_depth, String step){
     System.out.println("max " + current_depth);
-    
+
     if(current_depth > depth){
       System.out.println(step + " " + evaluation());
       return evaluation();
@@ -465,6 +467,11 @@ public class White extends BaseOfWhite {
   public int min(int current_depth, String step){
     System.out.println("min" + current_depth);
     
+    if(gameover_white()){
+      System.out.println("GAME OVER");
+      return -1000000;
+    }
+    
     if(current_depth > depth){
       System.out.println(step);
       return evaluation();
@@ -503,7 +510,14 @@ public class White extends BaseOfWhite {
     }
     
     if(min == -1){
-      return 100000; // sua sau, checkmate
+      if(checkmate()){
+        System.out.println("checkmate " + step);
+        return 100000; // sua sau, checkmate
+      }
+      else{
+        System.out.println("stalemate " + step);
+        return -100000; // sua sau, checkmate
+      }
     }
     return min;
   }
@@ -540,8 +554,8 @@ public class White extends BaseOfWhite {
 //    } catch (IOException ex) {
 //        ex.printStackTrace();
 //    }
-    String[] asd = {"Kf8","Ra6","Kh7"};
+    String[] asd = {"Kf7","Rc6","Kh8"};
     white.initState(asd);
-    white.whiteMove("Kh8");
+    white.whiteMove("Kh7");
   }
 }
