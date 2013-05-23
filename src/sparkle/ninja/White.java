@@ -12,15 +12,19 @@ import java.io.IOException;
 
 public class White extends BaseOfWhite {
   
+  public White(){
+    pre_state = new list();
+  }
+  
   public boolean white = true;
   public boolean black = false;
   
   public int moveset[][] = {{0, 1},   
+                            {0, -1},   
                             {1, 0},   
-                            {1, 1},   
-                            {0, -1},                            
-                            {-1, 0},                               
-                            {0, -1},                            
+                            {1, 1},                            
+                            {1, -1},                               
+                            {-1, 0},                            
                             {-1, 1},                            
                             {-1, -1}};
 
@@ -51,17 +55,32 @@ public class White extends BaseOfWhite {
 
   public int depth = 3;
   
+  public boolean king_global = true;
+  public boolean check_confirm = false;
+  public String first_move = " ";;
   public int king_check = 10000;  
   public int rook_check = 5000;
   
-  public list pre_state = new list();
+  public list pre_state;
 
-  public void print_state(){
-    //System.out.println(white_king_x + "-" + white_king_y + " " + white_rook_x + "-" + white_rook_y + " " + black_king_x + "-" + black_king_y + " ");
+  public void my_println(String str){
+//    if(k==16)
+//      System.out.println(str);
   }
-
-  private boolean gameover_white() {
-    return(in_check_king(false) < 0);
+  
+  public void print_state_num(String str){
+    System.out.print(str + white_king_x + " " + white_king_y + ",");    
+    System.out.print(white_rook_x + " " + white_rook_y + ",");    
+    System.out.println(black_king_x + " " + black_king_y);  
+  }
+  
+  public String result_string(String str,int x, int y){
+    int Y = y + 1;
+    return str + get_char(x) + Y;
+  }
+  
+  public void print_state(){
+    ////my_println(white_king_x + "-" + white_king_y + " " + white_rook_x + "-" + white_rook_y + " " + black_king_x + "-" + black_king_y + " ");
   }
 
   public class state{
@@ -122,8 +141,20 @@ public class White extends BaseOfWhite {
       }
     }
 
-    public void save_state(){
-      add(new state(white_king_x, white_king_y, white_rook_x, white_rook_y, black_king_x, black_king_y));
+    public boolean save_state(int x1, int y1, int x2, int y2, int x3, int y3){
+      state st = new state(x1, y1, x2, y2, x3, y3);
+      
+      node temp = head;
+      while(temp != null){
+        if(temp.st.equal(x1, y1, x2, y2, x3, y3)){
+          my_println("state thot");
+          return false;
+        }
+        temp = temp.next;
+      }
+      
+      add(st);
+      return true;
     }
     
     public void remove_state(){
@@ -139,18 +170,6 @@ public class White extends BaseOfWhite {
         tail = temp;
         tail.next = null;
       }
-    }
-
-    public boolean contains_current(){
-      node temp = head;
-      while(temp != null){
-        if(temp.st.equal(white_king_x, white_king_y, white_rook_x, white_rook_y, black_king_x, black_king_y)){
-          System.out.println("state thot");
-          return true;
-        }
-        temp = temp.next;
-      }
-      return false;
     }
   }
   
@@ -204,15 +223,17 @@ public class White extends BaseOfWhite {
     return (x >= 0 && x < 8 && y >= 0 && y < 8);
   }
   
-  private boolean valid_move(boolean king, boolean white, int x, int y) {
+  public boolean valid_move(boolean king, boolean white, int x, int y) {
     
     if(!valid_position(x, y)){
       return false;
     }
     
     if(king){
-      if(invalid_move_king(x, y)){
-        return false;
+      if(white){
+        if(invalid_move_king(x, y)){
+          return false;
+        }
       }
     }
     else{
@@ -275,156 +296,210 @@ public class White extends BaseOfWhite {
     return true;
   }
 
-  private boolean checkmate() {
-    if(in_check_rook() + in_check_king(true) > 0){
-      System.out.println("CHECK!!!");
-      return true;
+  public boolean checkmate() {
+    for(int i = 0; i < 8; i++){
+      if(black_king_x == white_king_x + moveset[i][0] && black_king_y == white_king_y + moveset[i][1]){
+        return true;
+      }
     }
-    return false;
-  }
-  
-  public int evaluation(){
-    print_state();
-    int result = 0;
-    result += white_rook_table[7 - white_rook_y][white_rook_x];
-    result += white_king_table[7 - white_king_y][white_king_x];
-    result -= white_king_table[7 - black_king_y][black_king_x];
-    result += in_check_rook() + in_check_king(white) + in_check_king(black);
-    return result;
-  }
-  
-  public int in_check_rook(){
+
+    // rook
     for(int i = 1; i < 8; i++){
       if(white_rook_x + i > 7 || (white_rook_x + i == white_king_x && white_rook_y == white_king_y)){
         break;
       }
       if(white_rook_x + i == black_king_x && white_rook_y == black_king_y){
-        return king_check; 
+        return true; 
       }
     }
-    
+
     for(int i = 1; i < 8; i++){
       if(white_rook_x - i < 0 || (white_rook_x - i == white_king_x && white_rook_y == white_king_y)){
         break;
       }
       if(white_rook_x - i == black_king_x && white_rook_y == black_king_y){
-        return king_check; 
+        return true; 
       }
     }
-    
+
     for(int i = 1; i < 8; i++){
       if(white_rook_y + i > 7 || (white_rook_x == white_king_x && white_rook_y + i == white_king_y)){
         break;
       }
       if(white_rook_x == black_king_x && white_rook_y + i == black_king_y){
-        return king_check; 
+        return true; 
       }
     }
-    
+
     for(int i = 1; i < 8; i++){
       if(white_rook_y - i < 0 || (white_rook_x == white_king_x && white_rook_y - i == white_king_y)){
         break;
       }
       if(white_rook_x == black_king_x && white_rook_y - i == black_king_y){
-        return king_check; 
+        return true; 
       }
     }
-    return 0;
+    return false;
   }
   
-  public int in_check_king(boolean white){
-    int result = 0;
-    if(white){
-      if(Math.abs(white_king_x - black_king_x) <= 1 && Math.abs(white_king_y - black_king_y) <= 1){
-        result += king_check;
-      }
+  public boolean pseudo_checkmate(String str){
+    int temp_x, temp_y;
+    char piece = str.charAt(0);
+    int x = get_int(str.charAt(1));    
+    int y = Integer.parseInt(str.substring(2, 3)) - 1;
+    boolean result;
+    if('K' == piece){
+      temp_x = white_king_x;
+      temp_y = white_king_y;
+      white_king_x = x;
+      white_king_y = y;
+      result = checkmate();
+      white_king_x = temp_x;      
+      white_king_y = temp_y;
     }
     else{
-      if(Math.abs(white_king_x - black_king_x) <= 1 && Math.abs(white_king_y - black_king_y) <= 1){
-        result -= king_check + 10;
-      }
-      if(Math.abs(white_rook_x - black_king_x) <= 1 && Math.abs(white_rook_y - black_king_y) <= 1){
-        result -= rook_check;
-      }
+      temp_x = white_rook_x;
+      temp_y = white_rook_y;
+      white_rook_x = x;
+      white_rook_y = y;
+      result = checkmate();
+      white_rook_x = temp_x;      
+      white_rook_y = temp_y;
+    }
+    return result;
+  }
+  
+  public int evaluation(){
+    print_state();
+    int result = 0;
+    result += in_check_black_king();
+    result += white_rook_table[7 - white_rook_y][white_rook_x];
+    result += white_king_table[7 - white_king_y][white_king_x];
+    result -= white_king_table[7 - black_king_y][black_king_x];
+    return result;
+  }
+  
+//  public int in_check_rook(){
+//    for(int i = 1; i < 8; i++){
+//      if(white_rook_x + i > 7 || (white_rook_x + i == white_king_x && white_rook_y == white_king_y)){
+//        break;
+//      }
+//      if(white_rook_x + i == black_king_x && white_rook_y == black_king_y){
+//        return king_check; 
+//      }
+//    }
+//    
+//    for(int i = 1; i < 8; i++){
+//      if(white_rook_x - i < 0 || (white_rook_x - i == white_king_x && white_rook_y == white_king_y)){
+//        break;
+//      }
+//      if(white_rook_x - i == black_king_x && white_rook_y == black_king_y){
+//        return king_check; 
+//      }
+//    }
+//    
+//    for(int i = 1; i < 8; i++){
+//      if(white_rook_y + i > 7 || (white_rook_x == white_king_x && white_rook_y + i == white_king_y)){
+//        break;
+//      }
+//      if(white_rook_x == black_king_x && white_rook_y + i == black_king_y){
+//        return king_check; 
+//      }
+//    }
+//    
+//    for(int i = 1; i < 8; i++){
+//      if(white_rook_y - i < 0 || (white_rook_x == white_king_x && white_rook_y - i == white_king_y)){
+//        break;
+//      }
+//      if(white_rook_x == black_king_x && white_rook_y - i == black_king_y){
+//        return king_check; 
+//      }
+//    }
+//    return 0;
+//  }
+//  
+  public int in_check_black_king(){
+    int result = 0;
+    if((Math.abs(white_king_x - black_king_x) <= 1 && Math.abs(white_king_y - black_king_y) <= 1) || (Math.abs(white_rook_x - black_king_x) <= 1 && Math.abs(white_rook_y - black_king_y) <= 1)){
+      result = -100000;
     }
     return result;
   }
   
   public boolean invalid_move_rook(int x, int y){
-    if((x == white_king_x && y == white_king_y) || (x == black_king_x && y == black_king_y)){
-      System.out.println("rook thot");
+    if((x == white_king_x && y >= white_king_y && white_rook_y < white_king_y)){
       return true;
     }
+    if((x == white_king_x && y <= white_king_y && white_rook_y > white_king_y)){
+      return true;
+    }
+    if((y == white_king_y && x >= white_king_x && white_rook_x < white_king_x)){
+      return true;
+    }
+    if((y == white_king_y && x <= white_king_x && white_rook_x > white_king_x)){
+      return true;
+    }
+    
     return false;
   }
   
   public boolean invalid_move_king(int x, int y){
-    if((x == white_rook_x && y == white_rook_y) || (white_king_x == black_king_x && white_king_y == black_king_y)){
-      System.out.println("king thot");
+    if((x == white_rook_x && y == white_rook_y)){
       return true;
     }
     return false;
   }
 
   public int max(int current_depth, String step){
-    System.out.println("max " + current_depth);
+    my_println("max " + current_depth);
 
-    if(current_depth > depth){
-      System.out.println(step + " " + evaluation());
+    if(current_depth > depth || evaluation() < -1000){
+      my_println(step + " " + evaluation());
       return evaluation();
     }
     
     String str;
-    String str2 = " ";
+    
     int temp, temp1;
     int max = -1;
     boolean unset = true;
 
     temp = white_rook_x;
     for(int i = 0; i < 8; i++){
-      if(!valid_move(false, true, i, white_rook_y)){
+      if(!valid_move(false, true, i, white_rook_y) || i == temp){
         continue;
       }
-      
+     
       white_rook_x = i;
       
-      if(!pre_state.contains_current()){
-        
-        pre_state.save_state();
-        
-        str = step + " R" + get_char(white_rook_x) + white_rook_y;
-        temp1 = min(current_depth + 1, str);
-        if(unset || temp1 > max){
-          str2 = " R" + get_char(white_rook_x) + white_rook_y;
-          max = temp1;
-          unset = false;
+      str = step + result_string("R", white_rook_x, white_rook_y);
+      temp1 = min(current_depth + 1, str, false);
+      if(unset || temp1 > max){
+        if(current_depth == 0){
+          first_move = result_string("R", white_rook_x, white_rook_y);
         }
-        
-        pre_state.remove_state();
+        max = temp1;
+        unset = false;
       }
     }
     white_rook_x = temp;
 
     temp = white_rook_y;
     for(int i = 0; i < 8; i++){
-      if(!valid_move(false, true, white_rook_x, i)){
+      if(!valid_move(false, true, white_rook_x, i) || i == temp){
         continue;
       }
       
       white_rook_y = i;
   
-      if(!pre_state.contains_current()){
-        pre_state.save_state();
-        
-        str = step + " R" + get_char(white_rook_x) + white_rook_y;
-        temp1 = min(current_depth + 1, str);
-        if(unset || temp1 > max){
-          str2 = " R" + get_char(white_rook_x) + white_rook_y;
-          max = temp1;
-          unset = false;
+      str = step + result_string("R", white_rook_x, white_rook_y);
+      temp1 = min(current_depth + 1, str, false);
+      if(unset || temp1 > max){
+        if(current_depth == 0){
+          first_move = result_string("R", white_rook_x, white_rook_y);
         }
-        
-        pre_state.remove_state();
+        max = temp1;
+        unset = false;
       }
     }
     white_rook_y = temp;
@@ -440,40 +515,37 @@ public class White extends BaseOfWhite {
       white_king_x += moveset[i][0];        
       white_king_y += moveset[i][1];
       
-      if(!pre_state.contains_current()){
-        pre_state.save_state();
-        
-        str = step + " K" + get_char(white_king_x) + white_king_y;
-        temp1 = min(current_depth + 1, str);
-        if(unset || temp1 > max){
-          str2 = " K" + get_char(white_king_x) + white_king_y;
-          max = temp1;
-          unset = false;
+      str = step + result_string("K", white_king_x, white_king_y);
+      temp1 = min(current_depth + 1, str, true);
+      if(unset || temp1 > max){
+        if(current_depth == 0){
+          first_move = result_string("K", white_king_x, white_king_y);
         }
-        
-        pre_state.remove_state();
+        max = temp1;
+        unset = false;
       }
-      
+        
       white_king_x = temp_x;
       white_king_y = temp_y;
     }
+
     
     if(current_depth == 0){
-      System.out.println("**** " + str2 + " ****");
+      if(pseudo_checkmate(first_move)){
+        first_move = first_move + "+";
+      }
+      my_println("**** " + first_move + " ****");
     }
+    
+
     return max;
   }
   
-  public int min(int current_depth, String step){
-    System.out.println("min" + current_depth);
+  public int min(int current_depth, String step, boolean king){
+    my_println("min" + current_depth);
     
-    if(gameover_white()){
-      System.out.println("GAME OVER");
-      return -1000000;
-    }
-    
-    if(current_depth > depth){
-      System.out.println(step);
+    if(current_depth > depth || evaluation() < -1000){
+      my_println(step + " " + evaluation());
       return evaluation();
     }
 
@@ -491,35 +563,55 @@ public class White extends BaseOfWhite {
       
       black_king_x += moveset[i][0];        
       black_king_y += moveset[i][1];
+
+      ///////////////////////
+      boolean good_state = true;
       
-      if(!pre_state.contains_current()){
-        pre_state.save_state();
-        
-        str = step + " BK" + get_char(black_king_x) + black_king_y; 
-        temp1 = max(current_depth + 1, str);
-        if(unset || temp1 < min){
-          min = temp1;
-          unset = false;
-        }
-        
-        pre_state.remove_state();
+      if(king){
+        good_state = pre_state.save_state(white_king_x, white_king_y, -1, -1, black_king_x, black_king_y);
       }
+      else{
+        good_state = pre_state.save_state( -1, -1, white_rook_x, white_rook_y, black_king_x, black_king_y);
+      }
+      
+      if(!good_state){
+        black_king_x = temp_x;
+        black_king_y = temp_y;
+        return -100000;
+      }
+
+      str = step + " " + result_string("BK", black_king_x, black_king_y);
+      temp1 = max(current_depth + 1, str);
+      if(unset || temp1 < min){
+        min = temp1;
+        unset = false;
+      }
+      
+      pre_state.remove_state();
+      ////////////////////////////////
       
       black_king_x = temp_x;
       black_king_y = temp_y;
     }
     
+    
     if(min == -1){
       if(checkmate()){
-        System.out.println("checkmate " + step);
+        my_println("checkmate " + step);
+        check_confirm = true;
         return 100000; // sua sau, checkmate
       }
       else{
-        System.out.println("stalemate " + step);
+        my_println("stalemate " + step);
         return -100000; // sua sau, checkmate
       }
     }
     return min;
+  }
+  
+    public void reset_var(){
+    first_move = "";
+    check_confirm = false;
   }
   
   @Override
@@ -532,30 +624,59 @@ public class White extends BaseOfWhite {
     
     black_king_x = get_int(state[2].charAt(1));    
     black_king_y = Integer.parseInt(state[2].substring(2, 3)) - 1;
-    System.out.println(white_king_x + " " + white_king_y);    
-    System.out.println(white_rook_x + " " + white_rook_y);    
-    System.out.println(black_king_x + " " + black_king_y);    
+    print_state_num("INIT ");
   }
 
+  public int k = 0;
+  
   @Override
   public String whiteMove(String blackMove) {
-    black_king_x = get_int(blackMove.charAt(1));    
-    black_king_y = Integer.parseInt(blackMove.substring(2, 3)) - 1;
+    k++;
+    if(k == 16){
+      int a = 3;
+    }
+    if(!"".equals(blackMove)){
+      black_king_x = get_int(blackMove.charAt(1));    
+      black_king_y = Integer.parseInt(blackMove.substring(2, 3)) - 1;
+      if(king_global){
+        pre_state.save_state(white_king_x, white_king_y, -1, -1, black_king_x, black_king_y);
+      }
+      else{
+        pre_state.save_state( -1, -1, white_rook_x, white_rook_y, black_king_x, black_king_y);
+      }
+    }
+   
+    max(0, "");
+    
 
-    max(0, "*");
-    return ("123");
+    if(!"".equals(first_move)){
+      if(first_move.charAt(0) == 'K'){
+        king_global = true;
+        white_king_x = get_int(first_move.charAt(1));    
+        white_king_y = Integer.parseInt(first_move.substring(2, 3)) - 1;
+      }
+      else{
+        king_global = false;
+        white_rook_x = get_int(first_move.charAt(1));    
+        white_rook_y = Integer.parseInt(first_move.substring(2, 3)) - 1;
+      }
+    }
+    
+    String result = first_move;
+    reset_var();
+    return (result);
   }
 
   public static void main(String[] args) {
-    White white = new White();
-//    AI_assignment2.setWhite(white);
-//    try {
-//        AI_assignment2.run();
-//    } catch (IOException ex) {
-//        ex.printStackTrace();
-//    }
-    String[] asd = {"Kf7","Rc6","Kh8"};
-    white.initState(asd);
-    white.whiteMove("Kh7");
+      White white = new White();
+      AI_assignment2.setWhite(white);
+      try {
+          AI_assignment2.run();
+      } catch (IOException ex) {
+          ex.printStackTrace();
+      }
+//    String[] asd = {"Ka1","Ra5","Ke4"};
+//    white.initState(asd);
+//    white.whiteMove("Ke5");
   }
 }
