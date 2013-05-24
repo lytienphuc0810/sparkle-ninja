@@ -16,9 +16,6 @@ public class White extends BaseOfWhite {
     pre_state = new list();
   }
   
-  public boolean white = true;
-  public boolean black = false;
-  
   public int moveset[][] = {{0, 1},   
                             {0, -1},   
                             {1, 0},   
@@ -28,24 +25,27 @@ public class White extends BaseOfWhite {
                             {-1, 1},                            
                             {-1, -1}};
 
-  public int white_rook_table[][] = { {0,  0,  0,  0,  0,  0,  0,  0}, 
-                                      {5, 10, 10, 10, 10, 10, 10,  5},
-                                      {-5,  0,  0,  0,  0,  0,  0, -5}, 
-                                      {-5,  0,  0,  0,  0,  0,  0, -5}, 
-                                      {-5,  0,  0,  0,  0,  0,  0, -5}, 
-                                      {-5,  0,  0,  0,  0,  0,  0, -5}, 
-                                      {-5,  0,  0,  0,  0,  0,  0, -5}, 
-                                      {0,  0,  0,  5,  5,  0,  0,  0} };
+  public int extra_rook[] = {100,50,25,15,5,-5,-10,-20};
+  public int extra_king[] = {30,25,20,15,5,-20,-50,-100};
+  
+  public int white_rook_table[][] = { {10,  20,  20,  20,  20,  20,  20,  10}, 
+                                      {20, 10, 10, 10, 10, 10, 10,  20},
+                                      {20,  0,  0,  0,  0,  0,  0, 20}, 
+                                      {20,  0,  0,  0,  0,  0,  0, 20}, 
+                                      {20,  0,  0,  0,  0,  0,  0, 20}, 
+                                      {20,  0,  0,  0,  0,  0,  0, 20}, 
+                                      {20,  10,  10,  10,  10,  10,  10, 20}, 
+                                      {10,  20,  20,  20,  20,  20,  20,  10} };
 
   public int white_king_table[][] = { {-50, -40, -30, -20, -20, -30, -40, -50}, 
                                       {-30, -20, -10,   0,   0, -10, -20, -30},
-                                      {-30, -10,  20,  30,  30,  20, -10, -30}, 
-                                      {-30, -10,  30,  40,  40,  30, -10, -30}, 
-                                      {-30, -10,  30,  40,  40,  30, -10, -30}, 
-                                      {-30, -10,  20,  30,  30,  20, -10, -30}, 
+                                      {-30, -10,  40,  30,  30,  40, -10, -30}, 
+                                      {-30, -10,  30,  20,  20,  30, -10, -30}, 
+                                      {-30, -10,  30,  20,  20,  30, -10, -30}, 
+                                      {-30, -10,  40,  30,  30,  40, -10, -30}, 
                                       {-30, -30,   0,   0,   0,   0, -30, -30}, 
                                       {-50, -30, -30, -30, -30, -30, -30, -50} };
-
+  
   public int white_king_x = -1;  
   public int white_king_y = -1;
   public int white_rook_x = -1;
@@ -62,10 +62,14 @@ public class White extends BaseOfWhite {
   public int rook_check = 5000;
   
   public list pre_state;
-
-  public void my_println(String str){
-//    if(k==16)
-//      System.out.println(str);
+  
+  public int distance(boolean king){
+    if(king){
+      return(extra_king[Math.abs(white_king_x - black_king_x)] + extra_king[Math.abs(white_king_x - black_king_x)]);
+    }
+    else{
+      return(extra_rook[Math.abs(white_rook_x - black_king_x)] + extra_rook[Math.abs(white_rook_x - black_king_x)]);
+    }
   }
   
   public void print_state_num(String str){
@@ -80,7 +84,7 @@ public class White extends BaseOfWhite {
   }
   
   public void print_state(){
-    ////my_println(white_king_x + "-" + white_king_y + " " + white_rook_x + "-" + white_rook_y + " " + black_king_x + "-" + black_king_y + " ");
+    //my_println(white_king_x + "-" + white_king_y + " " + white_rook_x + "-" + white_rook_y + " " + black_king_x + "-" + black_king_y + " ");
   }
 
   public class state{
@@ -147,7 +151,6 @@ public class White extends BaseOfWhite {
       node temp = head;
       while(temp != null){
         if(temp.st.equal(x1, y1, x2, y2, x3, y3)){
-          my_println("state thot");
           return false;
         }
         temp = temp.next;
@@ -372,52 +375,17 @@ public class White extends BaseOfWhite {
   public int evaluation(){
     print_state();
     int result = 0;
+//    if(checkmate()){
+//      result += 1000;
+//    }
+
     result += in_check_black_king();
-    result += white_rook_table[7 - white_rook_y][white_rook_x];
-    result += white_king_table[7 - white_king_y][white_king_x];
+    result += white_rook_table[7 - white_rook_y][white_rook_x] + distance(false);
+    result += white_king_table[7 - white_king_y][white_king_x] + distance(true);
     result -= white_king_table[7 - black_king_y][black_king_x];
     return result;
   }
   
-//  public int in_check_rook(){
-//    for(int i = 1; i < 8; i++){
-//      if(white_rook_x + i > 7 || (white_rook_x + i == white_king_x && white_rook_y == white_king_y)){
-//        break;
-//      }
-//      if(white_rook_x + i == black_king_x && white_rook_y == black_king_y){
-//        return king_check; 
-//      }
-//    }
-//    
-//    for(int i = 1; i < 8; i++){
-//      if(white_rook_x - i < 0 || (white_rook_x - i == white_king_x && white_rook_y == white_king_y)){
-//        break;
-//      }
-//      if(white_rook_x - i == black_king_x && white_rook_y == black_king_y){
-//        return king_check; 
-//      }
-//    }
-//    
-//    for(int i = 1; i < 8; i++){
-//      if(white_rook_y + i > 7 || (white_rook_x == white_king_x && white_rook_y + i == white_king_y)){
-//        break;
-//      }
-//      if(white_rook_x == black_king_x && white_rook_y + i == black_king_y){
-//        return king_check; 
-//      }
-//    }
-//    
-//    for(int i = 1; i < 8; i++){
-//      if(white_rook_y - i < 0 || (white_rook_x == white_king_x && white_rook_y - i == white_king_y)){
-//        break;
-//      }
-//      if(white_rook_x == black_king_x && white_rook_y - i == black_king_y){
-//        return king_check; 
-//      }
-//    }
-//    return 0;
-//  }
-//  
   public int in_check_black_king(){
     int result = 0;
     if((Math.abs(white_king_x - black_king_x) <= 1 && Math.abs(white_king_y - black_king_y) <= 1) || (Math.abs(white_rook_x - black_king_x) <= 1 && Math.abs(white_rook_y - black_king_y) <= 1)){
@@ -451,10 +419,10 @@ public class White extends BaseOfWhite {
   }
 
   public int max(int current_depth, String step){
-    my_println("max " + current_depth);
+//    my_println("max " + current_depth);
 
-    if(current_depth > depth || evaluation() < -1000){
-      my_println(step + " " + evaluation());
+    if(current_depth > depth || evaluation() < -1000){                          // mat piece
+//      my_println(step + " " + evaluation());
       return evaluation();
     }
     
@@ -534,7 +502,7 @@ public class White extends BaseOfWhite {
       if(pseudo_checkmate(first_move)){
         first_move = first_move + "+";
       }
-      my_println("**** " + first_move + " ****");
+//      my_println("**** " + first_move + " ****");
     }
     
 
@@ -542,10 +510,10 @@ public class White extends BaseOfWhite {
   }
   
   public int min(int current_depth, String step, boolean king){
-    my_println("min" + current_depth);
+//    my_println("min" + current_depth);
     
     if(current_depth > depth || evaluation() < -1000){
-      my_println(step + " " + evaluation());
+//      my_println(step + " " + evaluation());
       return evaluation();
     }
 
@@ -597,19 +565,17 @@ public class White extends BaseOfWhite {
     
     if(min == -1){
       if(checkmate()){
-        my_println("checkmate " + step);
         check_confirm = true;
         return 100000; // sua sau, checkmate
       }
       else{
-        my_println("stalemate " + step);
         return -100000; // sua sau, checkmate
       }
     }
     return min;
   }
   
-    public void reset_var(){
+  public void reset_var(){
     first_move = "";
     check_confirm = false;
   }
@@ -624,17 +590,10 @@ public class White extends BaseOfWhite {
     
     black_king_x = get_int(state[2].charAt(1));    
     black_king_y = Integer.parseInt(state[2].substring(2, 3)) - 1;
-    print_state_num("INIT ");
   }
 
-  public int k = 0;
-  
   @Override
   public String whiteMove(String blackMove) {
-    k++;
-    if(k == 16){
-      int a = 3;
-    }
     if(!"".equals(blackMove)){
       black_king_x = get_int(blackMove.charAt(1));    
       black_king_y = Integer.parseInt(blackMove.substring(2, 3)) - 1;
@@ -642,12 +601,11 @@ public class White extends BaseOfWhite {
         pre_state.save_state(white_king_x, white_king_y, -1, -1, black_king_x, black_king_y);
       }
       else{
-        pre_state.save_state( -1, -1, white_rook_x, white_rook_y, black_king_x, black_king_y);
+        pre_state.save_state(-1, -1, white_rook_x, white_rook_y, black_king_x, black_king_y);
       }
     }
    
     max(0, "");
-    
 
     if(!"".equals(first_move)){
       if(first_move.charAt(0) == 'K'){
