@@ -375,9 +375,6 @@ public class White extends BaseOfWhite {
   public int evaluation(){
     print_state();
     int result = 0;
-//    if(checkmate()){
-//      result += 1000;
-//    }
 
     result += in_check_black_king();
     result += white_rook_table[7 - white_rook_y][white_rook_x] + distance(false);
@@ -418,15 +415,11 @@ public class White extends BaseOfWhite {
     return false;
   }
 
-  public int max(int current_depth, String step){
-//    my_println("max " + current_depth);
-
-    if(current_depth > depth || evaluation() < -1000){                          // mat piece
-//      my_println(step + " " + evaluation());
-      return evaluation();
+  public int max(int current_depth){
+    int eval = evaluation();
+    if(current_depth > depth || eval < -1000){                                  // mat piece
+      return eval;
     }
-    
-    String str;
     
     int temp, temp1;
     int max = -1;
@@ -440,8 +433,7 @@ public class White extends BaseOfWhite {
      
       white_rook_x = i;
       
-      str = step + result_string("R", white_rook_x, white_rook_y);
-      temp1 = min(current_depth + 1, str, false);
+      temp1 = min(current_depth + 1, false);
       if(unset || temp1 > max){
         if(current_depth == 0){
           first_move = result_string("R", white_rook_x, white_rook_y);
@@ -460,8 +452,7 @@ public class White extends BaseOfWhite {
       
       white_rook_y = i;
   
-      str = step + result_string("R", white_rook_x, white_rook_y);
-      temp1 = min(current_depth + 1, str, false);
+      temp1 = min(current_depth + 1, false);
       if(unset || temp1 > max){
         if(current_depth == 0){
           first_move = result_string("R", white_rook_x, white_rook_y);
@@ -483,8 +474,7 @@ public class White extends BaseOfWhite {
       white_king_x += moveset[i][0];        
       white_king_y += moveset[i][1];
       
-      str = step + result_string("K", white_king_x, white_king_y);
-      temp1 = min(current_depth + 1, str, true);
+      temp1 = min(current_depth + 1, true);
       if(unset || temp1 > max){
         if(current_depth == 0){
           first_move = result_string("K", white_king_x, white_king_y);
@@ -502,27 +492,22 @@ public class White extends BaseOfWhite {
       if(pseudo_checkmate(first_move)){
         first_move = first_move + "+";
       }
-//      my_println("**** " + first_move + " ****");
     }
-    
 
     return max;
   }
   
-  public int min(int current_depth, String step, boolean king){
-//    my_println("min" + current_depth);
-    
-    if(current_depth > depth || evaluation() < -1000){
-//      my_println(step + " " + evaluation());
-      return evaluation();
+  public int min(int current_depth, boolean king){
+    int eval = evaluation();
+    if(current_depth > depth || eval < -1000){
+      return eval;
     }
 
     int temp1;
     int min = -1;
+    boolean unset = true;
     int temp_x = black_king_x;   
     int temp_y = black_king_y;
-    String str;
-    boolean unset = true;
 
     for(int i = 0; i < 8; i++){
       if(!valid_move(true, false, black_king_x + moveset[i][0], black_king_y + moveset[i][1])){
@@ -533,7 +518,7 @@ public class White extends BaseOfWhite {
       black_king_y += moveset[i][1];
 
       ///////////////////////
-      boolean good_state = true;
+      boolean good_state;
       
       if(king){
         good_state = pre_state.save_state(white_king_x, white_king_y, -1, -1, black_king_x, black_king_y);
@@ -548,8 +533,7 @@ public class White extends BaseOfWhite {
         return -100000;
       }
 
-      str = step + " " + result_string("BK", black_king_x, black_king_y);
-      temp1 = max(current_depth + 1, str);
+      temp1 = max(current_depth + 1);
       if(unset || temp1 < min){
         min = temp1;
         unset = false;
@@ -561,7 +545,6 @@ public class White extends BaseOfWhite {
       black_king_x = temp_x;
       black_king_y = temp_y;
     }
-    
     
     if(min == -1){
       if(checkmate()){
@@ -605,7 +588,7 @@ public class White extends BaseOfWhite {
       }
     }
    
-    max(0, "");
+    max(0);
 
     if(!"".equals(first_move)){
       if(first_move.charAt(0) == 'K'){
